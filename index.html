@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f2f2ed">
+  <title>ViralMaker — Fotoğraf Stüdyosu</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #171916;
+      --muted: #71756f;
+      --paper: #f2f2ed;
+      --line: #d9dbd3;
+      --acid: #c7f36a;
+      --blue: #3558f5;
+      --coral: #ff654d;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--paper); }
+    button { color: inherit; font: inherit; }
+    .topbar {
+      position: sticky;
+      z-index: 5;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 74px;
+      padding: 0 clamp(18px, 5vw, 76px);
+      border-bottom: 1px solid rgba(23, 25, 22, .13);
+      background: rgba(242, 242, 237, .94);
+      backdrop-filter: blur(12px);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 800; }
+    .brand-mark {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--ink);
+      color: var(--acid);
+      font-size: 18px;
+    }
+    .brand span:last-child { letter-spacing: .02em; }
+    .upload-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 0 20px;
+      border: 0;
+      border-radius: 7px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .upload-button:hover { transform: translateY(-2px); background: #30352e; }
+    .upload-button svg { width: 17px; height: 17px; }
+    main { width: min(100% - 36px, 1000px); margin: 0 auto; padding: 48px 0 90px; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+    .eyebrow { margin: 0 0 12px; color: var(--blue); font: 700 11px/1.2 "Courier New", monospace; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(36px, 6vw, 58px); font-weight: 500; line-height: .98; }
+    .intro-note { max-width: 220px; margin: 0 0 3px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .upload-panel {
+      display: flex;
+      min-height: 155px;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 25px;
+      border: 1px dashed #aeb3a8;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, .52);
+      cursor: pointer;
+      transition: border-color .2s ease, background .2s ease, transform .2s ease;
+    }
+    .upload-panel:hover, .upload-panel.is-dragging { border-color: var(--blue); background: #fff; transform: translateY(-2px); }
+    .upload-symbol { display: grid; width: 48px; height: 48px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--acid); }
+    .upload-symbol svg { width: 22px; height: 22px; }
+    .upload-copy strong { display: block; margin-bottom: 5px; font-size: 15px; }
+    .upload-copy span { color: var(--muted); font-size: 12px; }
+    #photo-input { display: none; }
+    .source-row { display: none; align-items: center; gap: 12px; margin: 17px 0 0; color: var(--muted); font-size: 12px; }
+    .source-row.is-visible { display: flex; }
+    .source-thumb { width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 5px; object-fit: cover; }
+    .source-name { overflow: hidden; max-width: min(60vw, 440px); color: var(--ink); text-overflow: ellipsis; white-space: nowrap; }
+    .change-button { margin-left: auto; padding: 8px 0 8px 8px; border: 0; background: transparent; color: var(--blue); font-size: 12px; font-weight: 700; cursor: pointer; }
+    .results { margin-top: 48px; }
+    .results-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; padding-bottom: 15px; border-bottom: 1px solid var(--ink); }
+    .results-heading h2 { margin: 0; font: 500 24px/1.2 Georgia, "Times New Roman", serif; }
+    .results-count { color: var(--muted); font: 11px "Courier New", monospace; }
+    .template-list { display: grid; gap: 34px; padding-top: 22px; }
+    .template-card { animation: rise-in .48s both; }
+    .template-card:nth-child(2) { animation-delay: .07s; }
+    .template-card:nth-child(3) { animation-delay: .14s; }
+    .template-card:nth-child(4) { animation-delay: .21s; }
+    @keyframes rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .artboard { overflow: hidden; width: 100%; border-radius: 6px; background: #ddd; box-shadow: 0 9px 27px rgba(23, 25, 22, .09); }
+    .artboard canvas { display: block; width: 100%; height: auto; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 1px 0; }
+    .template-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .template-index { color: var(--muted); font: 11px "Courier New", monospace; }
+    .template-name strong { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+    .download-button {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 37px;
+      padding: 0 13px;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color .16s ease, background .16s ease;
+    }
+    .download-button:hover { background: var(--ink); color: #fff; }
+    .download-button svg { width: 15px; height: 15px; }
+    .empty-results { padding: 38px 0 4px; color: var(--muted); font-size: 13px; }
+    .empty-results[hidden], .results-content[hidden] { display: none; }
+    .status { min-height: 18px; margin: 10px 0 0; color: #b13c30; font-size: 12px; }
+    footer { padding: 19px 0 0; color: #898d85; font: 10px "Courier New", monospace; text-align: center; }
+
+    @media (max-width: 600px) {
+      .topbar { min-height: 64px; padding: 0 18px; }
+      .brand { font-size: 14px; }
+      .upload-button { min-height: 40px; padding: 0 14px; }
+      main { width: min(100% - 32px, 520px); padding-top: 35px; }
+      .intro { display: block; margin-bottom: 23px; }
+      h1 { max-width: 380px; font-size: 43px; }
+      .intro-note { margin-top: 13px; }
+      .upload-panel { min-height: 130px; justify-content: flex-start; padding: 20px; }
+      .results { margin-top: 36px; }
+      .template-list { gap: 27px; }
+      .card-footer { align-items: flex-start; }
+      .download-button { min-height: 36px; padding: 0 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">✳</span><span>VIRALMAKER</span></div>
+    <button class="upload-button" id="top-upload" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
+      Yükle
+    </button>
+  </header>
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div><p class="eyebrow">Fotoğraf stüdyosu / 01</p><h1 id="page-title">Viral setini<br>oluştur.</h1></div>
+      <p class="intro-note">Fotoğrafını 1.png şablonuna yerleştir.</p>
+    </section>
+
+    <input id="photo-input" type="file" accept="image/*">
+    <div class="upload-panel" id="drop-zone" role="button" tabindex="0" aria-label="Fotoğraf seç veya buraya sürükle">
+      <span class="upload-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg></span>
+      <span class="upload-copy"><strong>Fotoğrafını buraya bırak</strong><span>veya tıklayıp cihazından seç</span></span>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <div class="source-row" id="source-row">
+      <img class="source-thumb" id="source-thumb" alt="Yüklenen fotoğrafın küçük önizlemesi">
+      <span class="source-name" id="source-name"></span>
+      <button class="change-button" id="change-photo" type="button">Fotoğrafı değiştir</button>
+    </div>
+
+    <section class="results" aria-labelledby="results-title">
+      <div class="results-heading"><h2 id="results-title">Hazır tasarımlar</h2><span class="results-count" id="results-count">FOTOĞRAF BEKLENİYOR</span></div>
+      <p class="empty-results" id="empty-results">Sonuçlar fotoğrafını seçtiğinde burada görünecek.</p>
+      <div class="results-content" id="results-content" hidden><div class="template-list" id="template-list"></div></div>
+    </section>
+    <footer>GÖRSELLERİN CİHAZINDA İŞLENİR · SUNUCUYA YÜKLENMEZ</footer>
+  </main>
+
+  <script>
+    const photoInput = document.querySelector('#photo-input');
+    const dropZone = document.querySelector('#drop-zone');
+    const status = document.querySelector('#status');
+    const sourceRow = document.querySelector('#source-row');
+    const sourceThumb = document.querySelector('#source-thumb');
+    const sourceName = document.querySelector('#source-name');
+    const templateList = document.querySelector('#template-list');
+    const resultsContent = document.querySelector('#results-content');
+    const emptyResults = document.querySelector('#empty-results');
+    const resultsCount = document.querySelector('#results-count');
+    const downloadIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5"/><path d="M5 16v4h14v-4"/></svg>';
+    const firstTemplateImage = new Image();
+    const firstTemplateReady = new Promise((resolve, reject) => {
+      firstTemplateImage.onload = resolve;
+      firstTemplateImage.onerror = reject;
+    });
+    firstTemplateImage.src = '/1.png';
+    let currentPhotoUrl = null;
+
+    document.querySelector('#top-upload').addEventListener('click', () => photoInput.click());
+    document.querySelector('#change-photo').addEventListener('click', () => photoInput.click());
+    dropZone.addEventListener('click', () => photoInput.click());
+    dropZone.addEventListener('keydown', event => {
+      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); photoInput.click(); }
+    });
+    photoInput.addEventListener('change', () => {
+      if (photoInput.files?.[0]) loadPhoto(photoInput.files[0]);
+    });
+    for (const eventName of ['dragenter', 'dragover']) {
+      dropZone.addEventListener(eventName, event => { event.preventDefault(); dropZone.classList.add('is-dragging'); });
+    }
+    for (const eventName of ['dragleave', 'drop']) {
+      dropZone.addEventListener(eventName, event => { event.preventDefault(); dropZone.classList.remove('is-dragging'); });
+    }
+    dropZone.addEventListener('drop', event => {
+      const file = event.dataTransfer.files?.[0];
+      if (file) loadPhoto(file);
+    });
+
+    async function loadPhoto(file) {
+      status.textContent = '';
+      if (!file.type.startsWith('image/')) {
+        status.textContent = 'Lütfen bir fotoğraf dosyası seç.';
+        return;
+      }
+      const nextUrl = URL.createObjectURL(file);
+      const photo = new Image();
+      photo.onload = () => {
+        if (currentPhotoUrl) URL.revokeObjectURL(currentPhotoUrl);
+        currentPhotoUrl = nextUrl;
+        sourceThumb.src = nextUrl;
+        sourceName.textContent = file.name;
+        sourceRow.classList.add('is-visible');
+        dropZone.querySelector('strong').textContent = 'Yeni fotoğraf seçmek için tıkla';
+        renderTemplates(photo);
+      };
+      photo.onerror = () => {
+        URL.revokeObjectURL(nextUrl);
+        status.textContent = 'Bu fotoğraf açılamadı. Başka bir görsel deneyebilirsin.';
+      };
+      photo.src = nextUrl;
+    }
+
+    async function renderTemplates(photo) {
+      try {
+        await firstTemplateReady;
+      } catch {
+        status.textContent = '1.png şablonu açılamadı.';
+        return;
+      }
+      const templates = [
+        { name: '1.png şablonu', type: 'provided' }
+      ];
+      templateList.replaceChildren();
+      templates.forEach((template, index) => {
+        const card = document.createElement('article');
+        card.className = 'template-card';
+        const board = document.createElement('div');
+        board.className = 'artboard';
+        const canvas = document.createElement('canvas');
+        canvas.width = template.type === 'provided' ? firstTemplateImage.naturalWidth : 1080;
+        canvas.height = template.type === 'provided' ? firstTemplateImage.naturalHeight : 1350;
+        board.append(canvas);
+        const footer = document.createElement('div');
+        footer.className = 'card-footer';
+        const label = document.createElement('div');
+        label.className = 'template-name';
+        label.innerHTML = `<span class="template-index">0${index + 1}</span><strong>${template.name}</strong>`;
+        const download = document.createElement('button');
+        download.className = 'download-button';
+        download.type = 'button';
+        download.innerHTML = `${downloadIcon}<span>İndir</span>`;
+        download.addEventListener('click', () => {
+          const link = document.createElement('a');
+          link.download = `viralmaker-${template.type === 'provided' ? 'template-01' : template.type}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        });
+        footer.append(label, download);
+        card.append(board, footer);
+        templateList.append(card);
+        drawTemplate(canvas.getContext('2d'), photo);
+      });
+      resultsContent.hidden = false;
+      emptyResults.hidden = true;
+      resultsCount.textContent = '01 TASARIM';
+    }
+
+    function drawTemplate(ctx, photo) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      ctx.drawImage(firstTemplateImage, 0, 0, w, h);
+      coverImage(ctx, photo, 672, 104, 322, 455, 6);
+    }
+
+    function coverImage(ctx, photo, x, y, width, height, radius = 0) {
+      const scale = Math.max(width / photo.width, height / photo.height);
+      const cropWidth = width / scale;
+      const cropHeight = height / scale;
+      const cropX = (photo.width - cropWidth) / 2;
+      const cropY = (photo.height - cropHeight) / 2;
+      ctx.save();
+      ctx.beginPath();
+      if (radius && ctx.roundRect) ctx.roundRect(x, y, width, height, radius);
+      else ctx.rect(x, y, width, height);
+      ctx.clip();
+      ctx.drawImage(photo, cropX, cropY, cropWidth, cropHeight, x, y, width, height);
+      ctx.restore();
+    }
+  </script>
+</body>
+</html>
