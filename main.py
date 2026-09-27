@@ -1,4 +1,5 @@
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+import os
 from pathlib import Path
 
 
@@ -16,8 +17,10 @@ class AppHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-	server = ThreadingHTTPServer(("127.0.0.1", 8000), AppHandler)
-	print("ViralMaker hazir: http://127.0.0.1:8000")
+	host = "0.0.0.0"
+	port = int(os.environ.get("PORT", "8000"))
+	server = ThreadingHTTPServer((host, port), AppHandler)
+	print(f"ViralMaker hazir: http://{host}:{port}")
 	try:
 		server.serve_forever()
 	except KeyboardInterrupt:
