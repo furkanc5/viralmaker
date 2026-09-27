@@ -69,6 +69,7 @@
     .eyebrow { margin: 0 0 12px; color: var(--blue); font: 700 11px/1.2 "Courier New", monospace; letter-spacing: .12em; text-transform: uppercase; }
     h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(36px, 6vw, 58px); font-weight: 500; line-height: .98; }
     .intro-note { max-width: 220px; margin: 0 0 3px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+    .tool-link { display: inline-block; margin-top: 8px; color: var(--blue); font-size: 12px; font-weight: 700; text-decoration: none; }
     .upload-panel {
       display: flex;
       min-height: 155px;
@@ -154,15 +155,15 @@
 <body>
   <header class="topbar">
     <div class="brand"><span class="brand-mark" aria-hidden="true">✳</span><span>VIRALMAKER</span></div>
-    <a class="upload-button" href="./background-remover.html">
+    <button class="upload-button" id="top-upload" type="button">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m-5 5 5-5 5 5"/><path d="M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/></svg>
-      Arka planı sil
-    </a>
+      Yükle
+    </button>
   </header>
   <main>
     <section class="intro" aria-labelledby="page-title">
       <div><p class="eyebrow">Fotoğraf stüdyosu / 01</p><h1 id="page-title">Viral setini<br>oluştur.</h1></div>
-      <p class="intro-note">Fotoğrafını 1.png şablonuna yerleştir.</p>
+      <p class="intro-note">Fotoğrafını 1.png şablonuna yerleştir.<a class="tool-link" href="./background-remover.html">Arka planı ayrıca sil →</a></p>
     </section>
 
     <input id="photo-input" type="file" accept="image/*">
